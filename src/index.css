@@ -1,0 +1,148 @@
+@import "tailwindcss";
+
+@theme {
+  --color-lobster-orange: #FF6600;
+  --color-qq-blue: #0099FF;
+  --font-pingfang: "PingFang SC", "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-pingfang text-gray-900 antialiased bg-gray-100;
+    /* Using a standard clean Mac desktop background */
+    background-image: url('https://images.unsplash.com/photo-1549558549-415fe4c37b60?q=80&w=3419&auto=format&fit=crop');
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+  }
+}
+
+/* Custom extremely thin scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.mac-vibrancy {
+  @apply backdrop-blur-3xl bg-white/85 border border-white/50 shadow-[0_20px_60px_rgba(0,0,0,0.15)];
+}
+
+.mac-side-vibrancy {
+  @apply backdrop-blur-xl bg-gray-100/30;
+}
+
+/* Animations matching Mac feel */
+@keyframes mac-fade-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-mac-fade {
+  animation: mac-fade-in 0.3s cubic-bezier(0.23, 1, 0.32, 1) forwards;
+}
+
+/* Role Tags Styling */
+.tag-owner {
+  @apply bg-orange-50 text-orange-500 border border-orange-100 px-1 py-0.5 rounded text-[9px] font-bold;
+}
+
+.tag-admin {
+  @apply bg-blue-50 text-blue-500 border border-blue-100 px-1 py-0.5 rounded text-[9px] font-bold;
+}
+
+.tag-custom {
+  @apply bg-purple-50 text-purple-500 border border-purple-100 px-1 py-0.5 rounded text-[9px] font-bold;
+}
+
+/* Sidebar Active State */
+.sidebar-icon {
+  @apply cursor-pointer transition-all duration-200 hover:scale-110;
+}
+.sidebar-icon-active {
+  @apply text-qq-blue fill-qq-blue scale-110;
+}
+
+/* Knowledge Base Styles */
+.knowledge-chip {
+  @apply px-3 py-1 rounded-full text-[12px] font-medium transition-all cursor-pointer border border-transparent;
+}
+.knowledge-chip-active {
+  @apply bg-qq-blue text-white shadow-sm;
+}
+.knowledge-chip-inactive {
+  @apply bg-gray-200/50 text-gray-500 hover:bg-gray-200;
+}
+
+.knowledge-card {
+  @apply bg-white p-4 rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden;
+}
+
+.knowledge-card:hover {
+  @apply -translate-y-0.5 border-blue-200/50;
+}
+
+.knowledge-card-tag {
+  @apply absolute top-0 right-0 px-2 py-1 bg-lobster-orange/10 text-lobster-orange text-[10px] font-bold rounded-bl-lg;
+}
+
+/* @ Suggestion Menu */
+.at-suggestion-menu {
+  @apply absolute bottom-full left-0 mb-3 bg-white/90 backdrop-blur-xl border border-gray-100 shadow-xl rounded-xl overflow-hidden select-none;
+  width: 280px;
+  z-index: 100;
+  animation: mac-slide-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.at-suggestion-item {
+  @apply px-4 py-2.5 flex items-center gap-3 cursor-default transition-all duration-200;
+}
+
+.at-suggestion-item:hover {
+  background-color: #F0F7FF;
+}
+
+.at-suggestion-name {
+  @apply text-[13px] font-bold text-slate-800;
+}
+
+.at-suggestion-desc {
+  @apply text-[11px] text-gray-500 font-normal;
+}
+
+/* AI Tag */
+.ai-badge-sm {
+  @apply text-[9px] bg-blue-50 text-qq-blue px-1 rounded font-bold border border-blue-100 uppercase;
+}
+
+/* Animations */
+@keyframes mac-slide-up {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.animate-mac-slide-up {
+  animation: mac-slide-up 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.report-header-gradient {
+  background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+}
+
+.animate-breathing-blue {
+  animation: breathing-blue 3s ease-in-out infinite;
+}
+
+@keyframes breathing-blue {
+  0%, 100% { border-color: rgba(0, 153, 255, 0.1); box-shadow: 0 0 15px rgba(0, 153, 255, 0.05); }
+  50% { border-color: rgba(0, 153, 255, 0.3); box-shadow: 0 0 25px rgba(0, 153, 255, 0.1); }
+}
