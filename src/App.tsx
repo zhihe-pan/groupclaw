@@ -563,20 +563,35 @@ export default function App() {
     newSubscribed.add(groupId);
     setSubscribedGroups(newSubscribed);
     
-    // Add new helper session
-    const assistantId = `push_${groupId}`;
-    const newSession: Session = {
-      id: assistantId,
-      name: `群龙虾 - ${groupName}`,
-      isAssistant: true,
-      lastMsg: '已为您开启订阅...',
-      time: '刚刚',
-      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Lobster'
-    };
+    // 订阅优先复用当前群已存在的群龙虾会话，避免与知识库私聊重复开窗
+    const pushId = `push_${groupId}`;
+    const assistantId = findExistingAssistantSessionId(sessions, groupId) ?? pushId;
     
     setSessions(prev => {
-      if (prev.find(s => s.id === assistantId)) return prev;
-      return [newSession, ...prev];
+      if (prev.find((s) => s.id === assistantId)) {
+        return prev.map((s) =>
+          s.id === assistantId
+            ? {
+                ...s,
+                name: `群龙虾 - ${groupName}`,
+                lastMsg: '已为您开启订阅...',
+                time: '刚刚',
+                avatar: '',
+              }
+            : s
+        );
+      }
+      return [
+        {
+          id: pushId,
+          name: `群龙虾 - ${groupName}`,
+          isAssistant: true,
+          lastMsg: '已为您开启订阅...',
+          time: '刚刚',
+          avatar: '',
+        },
+        ...prev,
+      ];
     });
 
     // AUTO SWITCH to the new session
@@ -620,23 +635,41 @@ export default function App() {
     });
   };
 
+  /** 同一群只复用一个群龙虾会话，避免「订阅」与「私聊」各开一个窗口 */
+  const findExistingAssistantSessionId = (
+    list: Session[],
+    groupNumId: number
+  ): string | null => {
+    const lobsterId = `lobster_${groupNumId}`;
+    const pushId = `push_${groupNumId}`;
+    if (list.some((s) => s.id === lobsterId)) return lobsterId;
+    if (list.some((s) => s.id === pushId)) return pushId;
+    return null;
+  };
+
   /** 入群导读与群知识库共用同一私聊会话 id：lobster_{群数字 id} */
   const ensureLobsterPrivateSession = (
     groupNumId: number,
     groupNameShort: string,
     entry: 'onboarding' | 'knowledge'
   ) => {
-    const assistantId = `lobster_${groupNumId}`;
+    const lobsterId = `lobster_${groupNumId}`;
     const displayName = `群龙虾 - ${groupNameShort}`;
     const opening = lobsterPrivateOpening(entry);
+    const targetAssistantId =
+      findExistingAssistantSessionId(sessions, groupNumId) ?? lobsterId;
     setSessions((prev) => {
-      const existing = prev.find((s) => s.id === assistantId);
+      const existing = prev.find((s) => s.id === targetAssistantId);
       if (existing) {
-        return prev.map((s) => (s.id === assistantId ? { ...s, name: displayName } : s));
+        return prev.map((s) =>
+          s.id === targetAssistantId
+            ? { ...s, name: displayName, time: '刚刚' }
+            : s
+        );
       }
       return [
         {
-          id: assistantId,
+          id: lobsterId,
           name: displayName,
           lastMsg: opening,
           time: '刚刚',
@@ -647,12 +680,12 @@ export default function App() {
       ];
     });
     setMessages((prev) => {
-      if (prev.some((m) => m.sessionId === assistantId)) return prev;
+      if (prev.some((m) => m.sessionId === targetAssistantId)) return prev;
       return [
         ...prev,
         {
           id: Date.now(),
-          sessionId: assistantId,
+          sessionId: targetAssistantId,
           user: '群龙虾',
           avatar: '',
           content: opening,
@@ -661,7 +694,7 @@ export default function App() {
         },
       ];
     });
-    setActiveSessionId(assistantId);
+    setActiveSessionId(targetAssistantId);
   };
 
   const currentUserRole = [1, 2, 4].includes(Number(activeSessionId)) ? 'owner' : 'member';
@@ -753,12 +786,12 @@ export default function App() {
               >
                 <div className="relative shrink-0">
                    <div className="w-12 h-12 rounded-lg bg-gray-300 overflow-hidden shadow-sm">
-                      {s.avatar && s.avatar.startsWith('http') ? (
-                        <img src={s.avatar} alt={s.name} className="w-full h-full object-cover" />
-                      ) : s.isAssistant ? (
+                      {s.isAssistant ? (
                         <div className="w-full h-full bg-lobster-orange flex items-center justify-center">
                           <span className="text-xl leading-none select-none">🦞</span>
                         </div>
+                      ) : s.avatar && s.avatar.startsWith('http') ? (
+                        <img src={s.avatar} alt={s.name} className="w-full h-full object-cover" />
                       ) : (
                         <img src={s.avatar || 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sys'} alt={s.name} className="w-full h-full object-cover" />
                       )}
